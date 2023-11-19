@@ -1,0 +1,265 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "Course Recommendation System"
+paths:
+  /instructors/courses:
+    get:
+      summary: "Retrieve the courses taught by the instructor."
+      tags:
+        - "instructors"
+      responses:
+        200:
+          description: "Successful retrieval"
+          examples:
+            application/json:
+              - courseId: "C001"
+                courseName: "Introduction to Programming"
+              - courseId: "C002"
+                courseName: "Database Management"
+
+  /instructors/students/{courseId}:
+    get:
+      summary: "Get a list of students enrolled in a specific course."
+      tags:
+        - "instructors"
+      parameters:
+        - name: "courseId"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Successful retrieval"
+          examples:
+            application/json:
+              - studentId: "S001"
+                studentName: "John Doe"
+              - studentId: "S002"
+                studentName: "Jane Smith"
+        404:
+          description: "Course not found"
+
+  /instructors/progress/{courseId}/{studentId}:
+    get:
+      summary: "View the progress of a specific student in a course."
+      tags:
+        - "instructors"
+      parameters:
+        - name: "courseId"
+          in: "path"
+          required: true
+          type: "string"
+        - name: "studentId"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Successful retrieval"
+          examples:
+            application/json:
+              courseId: "C001"
+              studentId: "S001"
+              progress: 75
+        404:
+          description: "Student or course not found"
+
+  /admin/students:
+    post:
+      summary: "Add a new student to the database."
+      tags:
+        - "admins"
+      responses:
+        201:
+          description: "Student added successfully"
+          examples:
+            application/json:
+              studentId: "S003"
+              message: "Student added successfully"
+
+  /admin/students/{studentId}:
+    put:
+      summary: "Update the information of a specific student."
+      tags:
+        - "admins"
+      parameters:
+        - name: "studentId"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Student information updated successfully"
+          examples:
+            application/json:
+              studentId: "S001"
+              message: "Student information updated successfully"
+        404:
+          description: "Student not found"
+
+    delete:
+      summary: "Remove a student from the database."
+      tags:
+        - "admins"
+      parameters:
+        - name: "studentId"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        204:
+          description: "Student removed successfully"
+        404:
+          description: "Student not found"
+
+  /admin/courses:
+    post:
+      summary: "Add a new course."
+      tags:
+        - "admins"
+      responses:
+        201:
+          description: "Course added successfully"
+          examples:
+            application/json:
+              courseId: "C003"
+              message: "Course added successfully"
+
+  /admin/courses/{courseId}:
+    put:
+      summary: "Update a specific course."
+      tags:
+        - "admins"
+      parameters:
+        - name: "courseId"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Course information updated successfully"
+          examples:
+            application/json:
+              courseId: "C002"
+              message: "Course information updated successfully"
+        404:
+          description: "Course not found"
+
+    delete:
+      summary: "Remove a course."
+      tags:
+        - "admins"
+      parameters:
+        - name: "courseId"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        204:
+          description: "Course removed successfully"
+        404:
+          description: "Course not found"
+
+  /students/register:
+    post:
+      summary: "Register a new student."
+      tags:
+        - "students"
+      responses:
+        201:
+          description: "Student registered successfully"
+          examples:
+            application/json:
+              studentId: "S004"
+              message: "Student registered successfully"
+
+  /students/info/{studentId}:
+    get:
+      summary: "Retrieve information of a specific student."
+      tags:
+        - "students"
+      parameters:
+        - name: "studentId"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Successful retrieval"
+          examples:
+            application/json:
+              studentId: "S003"
+              studentName: "Alice Johnson"
+              age: 20
+              email: "alice@example.com"
+        404:
+          description: "Student not found"
+
+  /students/update/{studentId}:
+    put:
+      summary: "Update the student's own information."
+      tags:
+        - "students"
+      parameters:
+        - name: "studentId"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Student information updated successfully"
+          examples:
+            application/json:
+              studentId: "S004"
+              message: "Student information updated successfully"
+        404:
+          description: "Student not found"
+
+  /students/courses:
+    get:
+      summary: "Get a list of courses the student is enrolled in."
+      tags:
+        - "students"
+      responses:
+        200:
+          description: "Successful retrieval"
+          examples:
+            application/json:
+              - courseId: "C001"
+                courseName: "Introduction to Programming"
+              - courseId: "C003"
+                courseName: "Advanced Machine Learning"
+
+  /students/enroll/{courseId}:
+    post:
+      summary: "Enroll in a course."
+      tags:
+        - "students"
+      parameters:
+        - name: "courseId"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        201:
+          description: "Enrolled successfully"
+          examples:
+            application/json:
+              message: "Enrolled successfully in course C002"
+        404:
+          description: "Course not found"
+
+  /students/progress/{courseId}:
+    get:
+      summary: "Get the student's progress in a specific course."
+      tags:
+        - "students"
+      parameters:
+        - name: "courseId"
+          in: "path"
+          required: true
+          type: "string"
+      responses:
+        200:
+          description: "Successful retrieval"
