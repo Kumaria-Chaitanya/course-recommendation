@@ -22,14 +22,17 @@ def add_new_instructor():
             course_id=instructor_data["course_id"],
         )
 
-        print(new_instructor)
-
         return {"message": "Instructor registered successfully"}, 201
 
     except Exception as e:
         # Handle exceptions as needed
         print(f"Error: {e}")
         return {"error": "Internal Server Error"}, 500
+    
+@app.route('/instructors/delete/<instructor_id>', methods=['DELETE'])
+def delete_instructor(instructor_id):
+    deleted_instructor_info, status_code = InstructorService.delete_instructor(instructor_id)
+    return jsonify(deleted_instructor_info), status_code
 
 @app.route('/instructors/courses/<instructor_id>', methods=['GET'])
 def get_instructors_courses(instructor_id):
@@ -38,24 +41,18 @@ def get_instructors_courses(instructor_id):
     return jsonify(instructor_course_info), status_code
 
 
-@app.route('/instructors/students/<courseId>', methods=['GET'])
+@app.route('/instructors/students/<course_id>', methods=['GET'])
 def get_students_in_course(course_id):
-    students_data = InstructorService.get_students_for_course(course_id)
+    course_student_info, status_code = InstructorService.get_students_for_course(course_id)
 
-    if isinstance(students_data, list):
-        return jsonify(students_data), 200
-    else:
-        return jsonify(students_data), students_data.get("status", 500)
+    return jsonify(course_student_info), status_code
 
 
-@app.route('/instructors/progress/{courseId}/{studentId}', methods=['GET'])
+@app.route('/instructors/progress/<course_id>/<student_id>', methods=['GET'])
 def get_student_progress_in_course(course_id, student_id):
-    progress_data = get_student_progress(course_id, student_id)
+    progress_data, status_code = InstructorService.get_student_progress(course_id, student_id)
 
-    if isinstance(progress_data, dict):
-        return jsonify(progress_data), 200
-    else:
-        return jsonify(progress_data), progress_data.get("status", 500)
+    return jsonify(progress_data), status_code
 
 
 @app.route('/admin/students', methods=['POST'])
@@ -70,8 +67,6 @@ def create_student():
             student_age=student_data["student_age"],
             student_email=student_data["student_email"],
         )
-
-        print(new_student)
 
         return {"message": "Student registered successfully"}, 201
 
@@ -153,6 +148,11 @@ def modify_student_information(student_id):
 
     updated_student_info, status_code = StudentService.update_student_info(student_id, updated_data)
     return jsonify(updated_student_info), status_code
+
+@app.route('/students/delete/<student_id>', methods=['DELETE'])
+def delete_student(student_id):
+    deleted_student_info, status_code = StudentService.delete_student(student_id)
+    return jsonify(deleted_student_info), status_code
 
 
 @app.route('/students/courses/<student_id>', methods=['GET'])

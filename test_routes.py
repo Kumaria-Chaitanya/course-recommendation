@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 from main import app
 
 class TestRoutes(unittest.TestCase):
@@ -6,7 +7,6 @@ class TestRoutes(unittest.TestCase):
         self.app = app.test_client()
 
     def test_create_student(self):
-        # Assuming a valid JSON for the test
         student_data = {
             "student_id": "1",
             "student_name": "John Doe",
@@ -19,7 +19,6 @@ class TestRoutes(unittest.TestCase):
         self.assertEqual(response.json, {"message": "Student registered successfully"})
 
     def test_modify_student(self):
-        # Assuming an existing student_id for the test
         student_id = "1"
         updated_data = {
             "student_name": "Updated Name",
@@ -32,7 +31,6 @@ class TestRoutes(unittest.TestCase):
         self.assertEqual(response.json["message"], "Student information updated successfully")
 
     def test_add_new_course(self):
-        # Assuming a valid JSON for the test
         course_data = {
             "course_id": "C001",
             "course_name": "Introduction to Python"
@@ -43,7 +41,6 @@ class TestRoutes(unittest.TestCase):
         self.assertEqual(response.json, {"message": f"Course added successfully with id {course_data['course_id']}"})
 
     def test_modify_course(self):
-        # Assuming an existing course_id for the test
         course_id = "C001"
         updated_data = {
             "course_name": "Updated Python Course"
@@ -55,7 +52,6 @@ class TestRoutes(unittest.TestCase):
 
 
     def test_add_new_student(self):
-        # Assuming a valid JSON for the test
         student_data = {
             "student_id": "2",
             "student_name": "Jonathan Doe",
@@ -67,56 +63,72 @@ class TestRoutes(unittest.TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json, {"message": "Student registered successfully"})
 
-        # Add more test cases as needed
-
     def test_get_student_information(self):
-        # Assuming an existing student_id for the test
         student_id = "1"
 
         response = self.app.get(f'/students/info/{student_id}')
         self.assertEqual(response.status_code, 200)
 
-        # Add more test cases as needed
-
     def test_modify_student_information(self):
-        # Assuming an existing student_id and valid JSON for the test
         student_id = "1"
         updated_data = {
             "student_name": "Updated Name",
             "student_age": 30,
-            "student_email": "updated.email@example.com"
+            "student_email": "updated.email@example.com",
+            "progress": 40
         }
 
         response = self.app.put(f'/students/update/{student_id}', json=updated_data)
         self.assertEqual(response.status_code, 200)
 
-        # Add more test cases as needed
-
     def test_get_student_enrolled_courses(self):
-        # Assuming an existing student_id for the test
         student_id = "1"
 
         response = self.app.get(f'/students/courses/{student_id}')
         self.assertEqual(response.status_code, 200)
 
-        # Add more test cases as needed
-
     def test_enroll_student(self):
-        # Assuming existing course_id and student_id for the test
         course_id = "C001"
         student_id = "1"
 
         response = self.app.get(f'/students/enroll/{student_id}/{course_id}')
         self.assertEqual(response.status_code, 201)
 
-        # Add more test cases as needed
-
     def test_get_student_progress(self):
-        # Assuming existing course_id and student_id for the test
         course_id = "C001"
         student_id = "1"
 
         response = self.app.get(f'/students/progress/{student_id}/{course_id}')
+        self.assertEqual(response.status_code, 200)
+
+    def test_add_new_instructor(self):
+        instructor_data = {
+            "instructor_id": "9",
+            "instructor_name": "Alex Adams",
+            "course_id": "C001"
+        }
+
+        response = self.app.post('/instructors/register', json=instructor_data)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json, {"message": "Instructor registered successfully"})
+
+    def test_get_instructors_courses(self):
+        instructor_id = "9"
+
+        response = self.app.get(f'/instructors/courses/{instructor_id}')
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_students_in_course(self):
+        course_id = "C001"
+
+        response = self.app.get(f'/instructors/students/{course_id}')
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_student_progress_in_course(self):
+        course_id = "C001"
+        student_id = "1"
+
+        response = self.app.get(f'/instructors/progress/{course_id}/{student_id}')
         self.assertEqual(response.status_code, 200)
 
 if __name__ == '__main__':

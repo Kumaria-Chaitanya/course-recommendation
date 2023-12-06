@@ -70,6 +70,26 @@ class StudentService:
             print(f"Error: {e}")
             db.session.rollback()
             return {"error": "Internal Server Error"}, 500
+        
+    def delete_student(student_id):
+        try:
+            # Fetch the student to be deleted
+            student = Student.query.filter_by(student_id=student_id).first()
+
+            if student:
+                # Delete the student from the database
+                db.session.delete(student)
+                db.session.commit()
+
+                return {"message": "Student deleted successfully"}, 200
+            else:
+                return {"error": "Student not found"}, 404
+
+        except Exception as e:
+            # Handle exceptions as needed
+            print(f"Error: {e}")
+            db.session.rollback()
+            return {"error": "Internal Server Error"}, 500
 
     def get_student_courses(student_id):
         try:
