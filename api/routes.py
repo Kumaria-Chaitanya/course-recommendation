@@ -6,14 +6,36 @@ from services.student_service import StudentService
 
 app = Flask(__name__)
 
+@app.route('/')
+def index():
+    return "Hello there!"
 
-@app.route('/instructors/courses', methods=['GET'])
-def get_instructors_courses():
-    courses_data = InstructorService.get_instructors_and_courses()
-    if courses_data is not None:
-        return jsonify(courses_data), 200
-    else:
-        return jsonify({"error": "Internal Server Error"}), 500
+@app.route('/instructors/register', methods=['POST'])
+def add_new_instructor():
+    try:
+        instructor_data = request.get_json()
+
+        # Create a new instructor
+        new_instructor = InstructorService.register_instructor(
+            instructor_id=instructor_data["instructor_id"],
+            instructor_name=instructor_data["instructor_name"],
+            course_id=instructor_data["course_id"],
+        )
+
+        print(new_instructor)
+
+        return {"message": "Instructor registered successfully"}, 201
+
+    except Exception as e:
+        # Handle exceptions as needed
+        print(f"Error: {e}")
+        return {"error": "Internal Server Error"}, 500
+
+@app.route('/instructors/courses/<instructor_id>', methods=['GET'])
+def get_instructors_courses(instructor_id):
+    instructor_course_info, status_code = InstructorService.get_instructors_and_courses(instructor_id)
+
+    return jsonify(instructor_course_info), status_code
 
 
 @app.route('/instructors/students/<courseId>', methods=['GET'])
@@ -38,51 +60,84 @@ def get_student_progress_in_course(course_id, student_id):
 
 @app.route('/admin/students', methods=['POST'])
 def create_student():
-    data = request.get_json()
+    try:
+        student_data = request.get_json()
 
-    if not data or "student_id" not in data or "student_name" not in data or "course_id" not in data:
-        return jsonify({"error": "Invalid request data"}), 400
+        # Create a new student
+        new_student = AdminServices.add_student(
+            student_id=student_data["student_id"],
+            student_name=student_data["student_name"],
+            student_age=student_data["student_age"],
+            student_email=student_data["student_email"],
+        )
 
-    result = AdminServices.add_student(data)
-    return jsonify(result), result.get("status", 500)
+        print(new_student)
+
+        return {"message": "Student registered successfully"}, 201
+
+    except Exception as e:
+        # Handle exceptions as needed
+        print(f"Error: {e}")
+        return {"error": "Internal Server Error"}, 500
 
 
-@app.route('/admin/students/{studentId}', methods=['PUT'])
+@app.route('/admin/students/<studentId>', methods=['PUT'])
 def modify_student(studentId):
     updated_data = request.get_json()
 
     if not updated_data:
         return jsonify({"error": "Invalid request data"}), 400
 
-    result = AdminServices.update_student(studentId, updated_data)
-    return jsonify(result), result.get("status", 500)
+    updated_student_info, status_code = AdminServices.update_student(studentId, updated_data)
+    return jsonify(updated_student_info), status_code
 
 
 @app.route('/admin/courses', methods=['POST'])
 def add_new_course():
-    data = request.get_json()
+    course_data = request.get_json()
 
-    if not data or "course_id" not in data or "course_name" not in data:
+    if not course_data or "course_id" not in course_data or "course_name" not in course_data:
         return jsonify({"error": "Invalid request data"}), 400
 
-    result = AdminServices.add_course(data)
-    return jsonify(result), result.get("status", 500)
+    course_info, status_code = AdminServices.add_course(
+        course_id=course_data["course_id"],
+        course_name=course_data["course_name"],
+    )
+    return jsonify(course_info), status_code
 
 
-@app.route('/admin/courses/<course_id>')
+@app.route('/admin/courses/<course_id>', methods=['PUT'])
 def modify_course(course_id):
     updated_data = request.get_json()
 
     if not updated_data:
         return jsonify({"error": "Invalid request data"}), 400
 
-    result = AdminServices.update_student(course_id, updated_data)
-    return jsonify(result), result.get("status", 500)
+    updated_course_info, status_code = AdminServices.update_course(course_id, updated_data)
+    return jsonify(updated_course_info), status_code
 
 
-@app.route('/students/register', methods=r['POST'])
+@app.route('/students/register', methods=['POST'])
 def add_new_student():
-    pass
+    try:
+        student_data = request.get_json()
+
+        # Create a new student
+        new_student = StudentService.register_student(
+            student_id=student_data["student_id"],
+            student_name=student_data["student_name"],
+            student_age=student_data["student_age"],
+            student_email=student_data["student_email"],
+        )
+
+        print(new_student)
+
+        return {"message": "Student registered successfully"}, 201
+
+    except Exception as e:
+        # Handle exceptions as needed
+        print(f"Error: {e}")
+        return {"error": "Internal Server Error"}, 500
 
 
 @app.route('/students/info/<student_id>', methods=['GET'])
@@ -98,8 +153,8 @@ def modify_student_information(student_id):
     if not updated_data:
         return jsonify({"error": "Invalid request data"}), 400
 
-    result = StudentService.update_student_info(student_id, updated_data)
-    return jsonify(result), result.get("status", 500)
+    updated_student_info, status_code = StudentService.update_student_info(student_id, updated_data)
+    return jsonify(updated_student_info), status_code
 
 
 @app.route('/students/courses/<student_id>', methods=['GET'])
@@ -108,13 +163,13 @@ def get_student_enrolled_courses(student_id):
     return jsonify(courses_data), status_code
 
 
-@app.route('/students/enroll/<student_id>/<course_id>', methods=['POST'])
+@app.route('/students/enroll/<student_id>/<course_id>', methods=['GET'])
 def enroll_student(course_id, student_id):
-    result = StudentService.enroll_student_in_course(student_id, course_id)
-    return jsonify(result), result.get("status", 500)
+    enrollment_data, status_code = StudentService.enroll_student_in_course(student_id, course_id)
+    return jsonify(enrollment_data), status_code
 
 
-@app.route('/students/progress/student_id/<course_id>', methods=['GET'])
+@app.route('/students/progress/<student_id>/<course_id>', methods=['GET'])
 def get_student_progress(course_id,student_id):
     progress_data, status_code = StudentService.get_student_progress_in_course(student_id, course_id)
     return jsonify(progress_data), status_code

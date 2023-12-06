@@ -7,32 +7,47 @@ from db.databases import db
 
 
 class InstructorService:
-    def get_instructors_and_courses(self):
+    def register_instructor(instructor_id, instructor_name, course_id):
         try:
-            # Fetch courses and associated instructors
-            courses = Course.query.all()
-            courses_data = []
+            existing_enrollment = Instructor.query.filter_by(instructor_id=instructor_id).first()
 
-            for course in courses:
-                instructors = Instructor.query.filter_by(course_id=course.id).all()
-                instructors_data = [
-                    {"instructor_id": instructor.instructor_id, "instructor_name": instructor.instructor_name}
-                    for instructor in instructors]
+            if existing_enrollment:
+                return {"error": "Instructor already exists"}, 400
 
-                course_data = {
-                    "course_id": course.course_id,
-                    "course_name": course.course_name,
-                    "instructors": instructors_data
-                }
+            # Enroll the student in the course
+            new_instructor = Instructor(instructor_id=instructor_id, instructor_name=instructor_name, course_id=course_id)
+            db.session.add(new_instructor)
+            db.session.commit()
 
-                courses_data.append(course_data)
+            return {"message": f"Instructor registered successfully with id {instructor_id}"}, 201
+    
+        except Exception as e:
+            # Handle exceptions as needed
+            print(f"Error: {e}")
+            db.session.rollback()
+            return {"error": "Internal Server Error"}, 500
 
-            return courses_data
+    def get_instructors_and_courses(instructor_id):
+        try:
+            # Fetch courses in which the specified instructor is enrolled
+            instructor = Instructor.query.filter_by(instructor_id=instructor_id).first()
+
+            if instructor:
+                courses = Course.query.filter_by(course_id=instructor.course_id).all()
+                if not courses:
+                    return {"error": "Instructor is not  enrolled in any course"}, 400
+
+                courses_data = [{"courseId": course.course_id, "courseName": course.course_name} for course in courses]
+
+                return courses_data, 200
+            else:
+                return {"error": "Instructor not found"}, 404
 
         except Exception as e:
             # Handle exceptions as needed
             print(f"Error: {e}")
-            return None
+            return {"error": "Internal Server Error"}, 500
+
 
     def get_students_for_course(self, course_id):
         try:
