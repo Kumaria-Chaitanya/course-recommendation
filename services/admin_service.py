@@ -68,7 +68,7 @@ class AdminServices:
             db.session.add(new_course)
             db.session.commit()
 
-            return {"message": f"Course added successfully with id {courseId}"}, 201
+            return {"message": f"Course added successfully with id {course_id}"}, 201
 
         except Exception as e:
             # Handle exceptions as needed

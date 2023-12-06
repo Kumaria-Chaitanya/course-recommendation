@@ -130,8 +130,6 @@ def add_new_student():
             student_email=student_data["student_email"],
         )
 
-        print(new_student)
-
         return {"message": "Student registered successfully"}, 201
 
     except Exception as e:
