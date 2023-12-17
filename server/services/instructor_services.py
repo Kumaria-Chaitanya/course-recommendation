@@ -47,21 +47,16 @@ class InstructorService:
             db.session.rollback()
             return {"error": "Internal Server Error"}, 500
 
-    def get_instructors_and_courses(instructor_id):
+    def get_instructors_courses(instructor_id):
         try:
             # Fetch courses in which the specified instructor is enrolled
-            instructor = Instructor.query.filter_by(instructor_id=instructor_id).first()
+            courses = Course.query.filter_by(instructor_id=instructor_id).all()
+            
+            if not courses:
+                return {"error": "No instructor found for this course"}, 400
 
-            if instructor:
-                courses = Course.query.filter_by(course_id=instructor.course_id).all()
-                if not courses:
-                    return {"error": "Instructor is not  enrolled in any course"}, 400
-
-                courses_data = [{"courseId": course.course_id, "courseName": course.course_name} for course in courses]
-
-                return courses_data, 200
-            else:
-                return {"error": "Instructor not found"}, 404
+            courses_data = [{"courseId": course.course_id, "courseName": course.course_name} for course in courses]
+            return courses_data, 200
 
         except Exception as e:
             # Handle exceptions as needed

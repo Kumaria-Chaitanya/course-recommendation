@@ -36,8 +36,9 @@ def delete_instructor(instructor_id):
     return jsonify(deleted_instructor_info), status_code
 
 @app.route('/instructors/courses/<instructor_id>', methods=['GET'])
+@cross_origin()
 def get_instructors_courses(instructor_id):
-    instructor_course_info, status_code = InstructorService.get_instructors_and_courses(instructor_id)
+    instructor_course_info, status_code = InstructorService.get_instructors_courses(instructor_id)
 
     return jsonify(instructor_course_info), status_code
 
@@ -54,6 +55,33 @@ def get_student_progress_in_course(course_id, student_id):
     progress_data, status_code = InstructorService.get_student_progress(course_id, student_id)
 
     return jsonify(progress_data), status_code
+
+
+@app.route('/admin/students', methods=['GET'])
+@cross_origin()
+def get_all_students():
+    try:
+        students, status_code = AdminServices.get_all_students()
+
+        return jsonify(students), status_code
+
+    except Exception as e:
+        # Handle exceptions as needed
+        print(f"Error: {e}")
+        return {"error": "Internal Server Error"}, 500
+
+@app.route('/admin/courses', methods=['GET'])
+@cross_origin()
+def get_all_courses():
+    try:
+        courses, status_code = AdminServices.get_all_courses()
+
+        return jsonify(courses), status_code
+
+    except Exception as e:
+        # Handle exceptions as needed
+        print(f"Error: {e}")
+        return {"error": "Internal Server Error"}, 500
 
 
 @app.route('/admin/students', methods=['POST'])
